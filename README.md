@@ -1,5 +1,9 @@
 # hermes-paperclip-adapter
 
+<!-- HMZ PORTFOLIO STANDARD -->
+> Portfolio status: active · Visibility: public · Source of truth: current repository source.
+<!-- END HMZ PORTFOLIO STANDARD -->
+
 > **Wire Hermes (NousResearch) as a Paperclip AI employee** — TypeScript adapter that lets Paperclip hire Hermes-2-Pro / Hermes-3 / Hermes-4 as a digital employee — with budget guardrails, structured tool calling, and full audit logs
 
 <p align="center">
