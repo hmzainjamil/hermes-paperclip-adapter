@@ -1,146 +1,47 @@
-# hermes-paperclip-adapter
+# Hermes Paperclip Adapter
 
-> **Wire Hermes (NousResearch) as a Paperclip AI employee** — TypeScript adapter that lets Paperclip hire Hermes-2-Pro / Hermes-3 / Hermes-4 as a digital employee — with budget guardrails, structured tool calling, and full audit logs
+A TypeScript Paperclip adapter that launches the Hermes CLI as an employee process. It provides Paperclip adapter exports, server execution and environment checks, session handling, skill synchronization exports, and UI/CLI helpers.
 
-<p align="center"><a href="https://github.com/hmzainjamil/hermes-paperclip-adapter">Repository</a> · <a href="https://github.com/hmzainjamil/hermes-paperclip-adapter/commits/main">Commits</a> · <a href="https://github.com/hmzainjamil/hermes-paperclip-adapter/issues">Issues</a></p>
-<p align="center"><img alt="Documentation" src="https://img.shields.io/badge/documentation-deep%20editorial-lightgrey"> <img alt="Lifecycle" src="https://img.shields.io/badge/lifecycle-active-success"></p>
+## Status and requirements
 
-<!-- HMZ DEEP README v1 -->
-
-## At a glance
-
-| Field | Current state |
+| Item | Source evidence |
 |---|---|
-| Repository | hermes-paperclip-adapter |
-| Visibility | Public |
-| Lifecycle | Active |
-| Evidence basis | Current repository documentation and source-visible material |
+| Package version field | `0.3.0` in `package.json`; this is a manifest value, not a release claim |
+| Language/build | TypeScript; `tsc` build script |
+| Node.js | `>=20` from `package.json` |
+| Runtime dependencies | Paperclip adapter utilities and Hermes Agent CLI |
+| Configuration | Adapter config includes model/provider, timeout, toolsets, session/worktree/checkpoint options, CLI path, environment, and prompt template |
+| Automated test scripts | None in the package scripts; `src/server/test.ts` checks runtime prerequisites |
+| Verification | No build, typecheck, or runtime was run for this documentation update |
 
-## Why this exists
+See [configuration and execution notes](docs/README.md) and [security notes](SECURITY.md).
 
-**Wire Hermes (NousResearch) as a Paperclip AI employee** — TypeScript adapter that lets Paperclip hire Hermes-2-Pro / Hermes-3 / Hermes-4 as a digital employee — with budget guardrails, structured tool calling, and full audit logs
+## How it works
 
-The README focuses on the adapter boundary and documents external orchestration behavior separately from repository-local behavior.
+The server adapter starts `hermes chat` as a child process, streams/parses output, and returns an execution result to Paperclip. It can pass task/session context and Paperclip environment values to the Hermes process. The adapter reads the local Hermes model configuration for model/provider detection.
 
-## 🧠 CONCEPTS
+This is a connector between two independently configured systems. The code here does not install or configure Paperclip, Hermes, providers, or API credentials.
 
-| Concept | Location | Description |
-|---|---|---|
-| **Entry** | `src/index.ts` | Public exports — adapter constructor · [Source](https://github.com/hmzainjamil/hermes-paperclip-adapter/blob/main/src/index.ts) |
-| **Server adapter** | `src/server/index.ts` | HTTP handshake with Paperclip core · [Source](https://github.com/hmzainjamil/hermes-paperclip-adapter/blob/main/src/server/index.ts) |
-| **Model detector** | `src/server/detect-model.ts` | Auto-detect Hermes variant (2/3/4) · [Source](https://github.com/hmzainjamil/hermes-paperclip-adapter/blob/main/src/server/detect-model.ts) |
-| **Execute loop** | `src/server/execute.ts` | Tool-calling loop with structured outputs · [Source](https://github.com/hmzainjamil/hermes-paperclip-adapter/blob/main/src/server/execute.ts) |
-| **Skills bridge** | `src/server/skills.ts` | Translate Paperclip skills → Hermes prompts · [Source](https://github.com/hmzainjamil/hermes-paperclip-adapter/blob/main/src/server/skills.ts) |
-| **CLI runner** | `src/cli/index.ts` | Local dev runner for testing · [Source](https://github.com/hmzainjamil/hermes-paperclip-adapter/blob/main/src/cli/index.ts) |
-| **Event formatter** | `src/cli/format-event.ts` | Pretty-print adapter events in terminal · [Source](https://github.com/hmzainjamil/hermes-paperclip-adapter/blob/main/src/cli/format-event.ts) |
-| **UI config builder** | `src/ui/build-config.ts` | Generate dashboard config JSON · [Source](https://github.com/hmzainjamil/hermes-paperclip-adapter/blob/main/src/ui/build-config.ts) |
-| **Stdout parser** | `src/ui/parse-stdout.ts` | Stream Hermes raw output → structured events · [Source](https://github.com/hmzainjamil/hermes-paperclip-adapter/blob/main/src/ui/parse-stdout.ts) |
-| **Test harness** | `src/server/test.ts` | Smoke tests against running Paperclip server · [Source](https://github.com/hmzainjamil/hermes-paperclip-adapter/blob/main/src/server/test.ts) |
+## Build
 
-## ⚙️ HOW IT WORKS
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  INPUT: TypeScript adapter that lets Paperclip hire Herm │
-└───────────────────────┬─────────────────────────────────┘
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│  LAYER 1 — Parse intent + load skill manifest           │
-└───────────────────────┬─────────────────────────────────┘
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│  LAYER 2 — Route to specialist (Entry                 ) │
-└───────────────────────┬─────────────────────────────────┘
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│  LAYER 3 — Execute · Validate · Log audit trail          │
-└───────────────────────┬─────────────────────────────────┘
-                        ▼
-┌─────────────────────────────────────────────────────────┐
-│  OUTPUT: Production deliverable + audit + provenance     │
-└─────────────────────────────────────────────────────────┘
-```
-
-## 🚀 INSTALL
+Requires Node.js 20 or newer, npm, and TypeScript dependencies from the lockfile:
 
 ```bash
-# Clone
-git clone https://github.com/hmzainjamil/hermes-paperclip-adapter.git
-cd hermes-paperclip-adapter
-
-# Install dependencies
-pnpm install && pnpm build
-
-# Configure
-cp .env.example .env  # if present
-# Edit .env with your keys
-
-# Verify
-node -v && (pnpm -v || npm -v)
+npm ci
+npm run build
 ```
 
-## 📟 USAGE
+The package also declares `npm run typecheck` and `npm run lint`. These commands are documented from `package.json`; none were executed for this README change. There is no `test` script in the package manifest.
 
-## ⚙️ CONFIGURATION
+For local integration, see [AGENTS.md](AGENTS.md) and verify its steps against the Paperclip version you use.
 
-| Option | Default | Description |
-|---|---|---|
-| `HERMES_PAPERCLIP_ADAPTER_MODEL` | `auto` | LLM to use — auto, claude, groq, ollama, gpt |
-| `HERMES_PAPERCLIP_ADAPTER_TIMEOUT` | `120s` | Max wall-time per operation |
-| `HERMES_PAPERCLIP_ADAPTER_LOG_LEVEL` | `info` | trace · debug · info · warn · error |
-| `HERMES_PAPERCLIP_ADAPTER_OUT_DIR` | `~/Downloads` | Where deliverables land (HMZ standard) |
-| `HERMES_PAPERCLIP_ADAPTER_CACHE` | `~/.cache/{name}` | Cache directory for warm starts |
-| `HERMES_PAPERCLIP_ADAPTER_AUDIT` | `true` | Persist every operation to SQLite for replay |
-| `HERMES_PAPERCLIP_ADAPTER_BUDGET_USD` | `5` | Hard-stop after this dollar burn |
-| `HERMES_PAPERCLIP_ADAPTER_CONCURRENCY` | `4` | Parallel workers |
-| `HERMES_PAPERCLIP_ADAPTER_RETRY` | `3` | Retries on transient failures |
-| `HERMES_PAPERCLIP_ADAPTER_TELEMETRY` | `false` | Anonymous usage stats — opt-in only |
+## Security boundary
 
-## 🧪 TESTING
+The adapter adds `--yolo` to the Hermes CLI arguments in `src/server/execute.ts`, bypassing Hermes dangerous-command approval prompts. Treat each run as an autonomous process with the permissions of its host account. Use a dedicated least-privilege account, restrict available toolsets and writable paths, isolate work, and inspect output and logs. See [SECURITY.md](SECURITY.md) before connecting a Paperclip agent.
 
-```bash
-pnpm test                       # all tests
-pnpm test --coverage            # coverage
-pnpm test -- -t 'specific'      # one test
-pnpm test:e2e                   # e2e only
-```
+## Scope and limits
 
-| Test suite | Coverage | Runtime |
-|---|---|---|
-| Unit | 82% | 4 s |
-| Integration | 71% | 22 s |
-| E2E | 58% | 1m 40s |
-| Total | 76% | 2m 10s |
-
-## 🔐 SECURITY
-
-- Never commit `.env` or API keys
-- Use least-privilege scopes on every token
-- Rotate tokens monthly
-- Audit MCP tool permissions before granting
-
-```bash
-# Scan for accidentally committed secrets
-git diff --staged | grep -iE 'key|secret|token|password'
-```
-
-Report vulnerabilities → [SECURITY.md](SECURITY.md)
-
-## Limitations
-
-- External orchestration systems can change independently of this adapter.
-- End-to-end reliability requires testing against the actual connected system.
-- Quantitative claims require reproducible evidence.
-
-## 🔗 RELATED
-
-| Repo | Why it matters |
-|---|---|
-| [claude-ai-system](https://github.com/hmzainjamil/claude-ai-system) | Full HMZ Claude stack — flagship |
-| [paperclip](https://github.com/hmzainjamil/paperclip) | Autonomous employee platform |
-| [claude-skills](https://github.com/hmzainjamil/claude-skills) | 2,400+ skill library |
-| [hmz-claude-code-best-practice](https://github.com/hmzainjamil/hmz-claude-code-best-practice) | Master reference for all Claude Code patterns |
-
-## Maintainer
-
-[hmzainjamil](https://github.com/hmzainjamil)
+- Successful compilation does not prove compatibility with a live Paperclip or Hermes release.
+- API keys, provider access, Paperclip endpoints, and model availability are configured externally.
+- No budget enforcement, audit guarantee, or runtime success is asserted by this README; verify each property in the connected system.
+- The repository includes a source-level environment check, not a complete integration test suite.
